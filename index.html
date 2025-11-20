@@ -4,21 +4,152 @@
 <meta charset="UTF-8">
 <title>Gondol! Game</title>
 <style>
-  body { font-family: sans-serif; text-align: center; background: #67ffd9; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; margin:0;}
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #67ffd9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding-top: 10px;
+  }
+
   h1 { margin-bottom: 5px; }
-  .info { display:flex; gap:20px; margin-bottom:10px; font-size:24px; font-weight:bold; }
-  .container { display:grid; grid-template-columns:40px repeat(3,80px); grid-template-rows:40px repeat(3,80px); gap:8px; align-items:center; justify-items:center; background:#FFB347; padding:12px; border-radius:12px; }
-  .header, .side { font-weight:bold; font-size:26px; opacity:0; transform:scale(0.3); transition: all 0.5s ease; }
-  .header.show, .side.show { opacity:1; transform:scale(1.1); color:#0044cc; text-shadow:0 0 10px #00e6e6; }
-  .cell { width:80px; height:80px; border-radius:10px; font-size:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:2px 2px 6px rgba(0,0,0,0.2); transition:0.2s; background:white; }
-  .palette { margin-top:20px; }
-  .number { display:inline-block; width:50px; height:50px; background:#80ff00; color:black; border-radius:50%; line-height:50px; font-size:30px; margin:5px; cursor:pointer; transition:0.2s;}
-  .number:hover { background:#32e625; transform:scale(1.1);}
-  .button-row { display: flex; gap: 12px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
-  button { padding:8px 16px; font-size:18px; background:#E64A19; color:white; border:none; border-radius:8px; cursor:pointer; transition:0.2s;}
-  button:hover { background:#32e625;}
-  #message { margin-top:10px; font-weight:bold; font-size:18px; }
-  select { margin-top:10px; font-size:18px; padding:5px; border-radius:8px; border:2px solid #E64A19; }
+
+  .info {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  /* ---------------------------- */
+  /*   ÁREA DO JOGO + REGRAS      */
+  /* ---------------------------- */
+  .game-area {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: center;   /* impede esticar */
+    width: auto;               /* tamanho natural */
+  }
+
+  /* ---------------------------- */
+  /*      MATRIZ DO GONDOL        */
+  /* ---------------------------- */
+  .container {
+    display: grid;
+    grid-template-columns: 40px repeat(3, 80px);
+    grid-template-rows: 40px repeat(3, 80px);
+    gap: 8px;
+    align-items: center;
+    justify-items: center;
+    background: #FFB347;
+    padding: 12px;
+    border-radius: 12px;
+    width: max-content;   /* 🔴 impede ficar larga */
+  }
+
+  .header, .side {
+    font-weight: bold;
+    font-size: 26px;
+    opacity: 0;
+    transform: scale(0.3);
+    transition: all 0.5s ease;
+  }
+  .header.show, .side.show {
+    opacity: 1;
+    transform: scale(1.1);
+    color: #0044cc;
+    text-shadow: 0 0 10px #00e6e6;
+  }
+
+  .cell {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    transition: 0.2s;
+    background: white;
+  }
+
+  .palette {
+    margin-top: 20px;
+  }
+
+  .number {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    background: #80ff00;
+    color: black;
+    border-radius: 50%;
+    line-height: 50px;
+    font-size: 30px;
+    margin: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .number:hover {
+    background: #32e625;
+    transform: scale(1.1);
+  }
+
+  .button-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 8px 16px;
+    font-size: 18px;
+    background: #E64A19;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  button:hover { background: #32e625; }
+
+  #message {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  select {
+    margin-top: 10px;
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 8px;
+    border: 2px solid #E64A19;
+  }
+
+  /* ---------------------------- */
+  /*        PAINEL DE REGRAS      */
+  /* ---------------------------- */
+  #rules-box {
+    width: 260px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+    text-align: left;
+    font-size: 18px;
+    display: none; /* começa escondido */
+  }
+
 </style>
 </head>
 <body>
@@ -39,13 +170,29 @@
   </select>
 </div>
 
-<div class="container" id="container"></div>
+<!-- ---------------------- -->
+<!--   MATRIZ + REGRAS      -->
+<!-- ---------------------- -->
+<div class="game-area">
+  
+  <div class="container" id="container"></div>
+
+  <div id="rules-box">
+    <h3>📘 Gondol Rules</h3>
+    <p>• Only numbers from 1 to 9, without repeating.</p>
+    <p>• The sum of the rows and columns results in the values ​​shown in bold.</p>
+    
+  </div>
+
+</div>
+
 <div class="palette" id="palette"></div>
 
 <div class="button-row">
   <button onclick="checkSolution()">Check</button>
   <button onclick="newChallenge()">New Challenge</button>
   <button id="soundToggle">🔊 Sound On</button>
+  <button onclick="toggleRules()">📘 Rules</button>
 </div>
 
 <p id="message"></p>
@@ -68,9 +215,6 @@ let interval = null;
 let gameActive = false;
 let soundEnabled = true;
 
-// ----------------------
-// BEST TIME SYSTEM
-// ----------------------
 let bestTime = localStorage.getItem("gondolBestTime")
                 ? parseInt(localStorage.getItem("gondolBestTime"))
                 : null;
@@ -85,7 +229,6 @@ if(bestTime !== null){
   recordEl.textContent = formatTime(bestTime);
 }
 
-// Audio
 let ctx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playNote(freq, dur=0.2) {
@@ -101,7 +244,6 @@ function playNote(freq, dur=0.2) {
   o.stop(ctx.currentTime + dur);
 }
 
-// Timer
 function startTimer() {
   if (interval) clearInterval(interval);
   tempo = 0;
@@ -112,7 +254,6 @@ function startTimer() {
   }, 1000);
 }
 
-// Create new challenge
 function generateBoard() {
   const nums = [1,2,3,4,5,6,7,8,9].sort(()=>Math.random()-0.5);
   solution = [nums.slice(0,3), nums.slice(3,6), nums.slice(6,9)];
@@ -203,7 +344,6 @@ function checkSolution(){
   if(correct){
     clearInterval(interval);
 
-    // SAVE NEW BEST TIME
     if(bestTime === null || tempo < bestTime){
         bestTime = tempo;
         localStorage.setItem("gondolBestTime", bestTime);
@@ -227,6 +367,11 @@ soundToggle.onclick = () => {
 
 function newChallenge(){
   generateBoard();
+}
+
+function toggleRules(){
+  const box = document.getElementById("rules-box");
+  box.style.display = (box.style.display === "none") ? "block" : "none";
 }
 
 createPalette();
