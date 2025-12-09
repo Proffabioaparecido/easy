@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Gondol! Game</title>
+<title>Gondol Drag-and-Drop – Temas</title>
+
 <style>
   body {
     font-family: sans-serif;
     text-align: center;
-    background: #67ffd9;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     margin: 0;
     padding-top: 10px;
   }
 
-  h1 { margin-bottom: 5px; }
+  h1 { 
+    margin-bottom: 5px;
+    text-shadow: 0 0 8px white;
+  }
 
   .info {
     display: flex;
@@ -23,359 +23,464 @@
     margin-bottom: 10px;
     font-size: 24px;
     font-weight: bold;
+    justify-content: center;
   }
 
-  /* ---------------------------- */
-  /*   ÁREA DO JOGO + REGRAS      */
-  /* ---------------------------- */
   .game-area {
     display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: center;   /* impede esticar */
-    width: auto;               /* tamanho natural */
+    justify-content: center;
+    margin-top: 20px;
   }
 
-  /* ---------------------------- */
-  /*      MATRIZ DO GONDOL        */
-  /* ---------------------------- */
   .container {
     display: grid;
-    grid-template-columns: 40px repeat(3, 80px);
-    grid-template-rows: 40px repeat(3, 80px);
+    grid-template-columns: 40px repeat(3, 80px) 40px;
+    grid-template-rows: 40px repeat(3, 80px) 40px;
     gap: 8px;
-    align-items: center;
-    justify-items: center;
-    background: #FFB347;
     padding: 12px;
     border-radius: 12px;
-    width: max-content;   /* 🔴 impede ficar larga */
+    box-shadow: 4px 4px 10px rgba(0,0,0,.25);
   }
 
-  .header, .side {
+  .header, .footer, .side, .sideR {
     font-weight: bold;
     font-size: 26px;
-    opacity: 0;
-    transform: scale(0.3);
-    transition: all 0.5s ease;
-  }
-  .header.show, .side.show {
-    opacity: 1;
-    transform: scale(1.1);
-    color: #0044cc;
-    text-shadow: 0 0 10px #00e6e6;
+    text-shadow: 0 0 8px #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .cell {
     width: 80px;
     height: 80px;
     border-radius: 10px;
-    font-size: 30px;
+    border: 3px solid;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
-    transition: 0.2s;
-    background: white;
-  }
-
-  .palette {
-    margin-top: 20px;
-  }
-
-  .number {
-    display: inline-block;
-    width: 50px;
-    height: 50px;
-    background: #80ff00;
-    color: black;
-    border-radius: 50%;
-    line-height: 50px;
     font-size: 30px;
-    margin: 5px;
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,.15);
     cursor: pointer;
-    transition: 0.2s;
-  }
-  .number:hover {
-    background: #32e625;
-    transform: scale(1.1);
   }
 
-  .button-row {
+  .pieces-bottom {
+    width: 100%;
     display: flex;
-    gap: 12px;
-    margin-top: 10px;
     justify-content: center;
-    flex-wrap: wrap;
+    margin-top: 25px;
+  }
+
+  .pieces-box {
+    background: #ffffff;
+    padding: 10px 20px;
+    border-radius: 12px;
+    box-shadow: 4px 4px 10px rgba(0,0,0,.25);
+  }
+
+  #pieces {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .piece {
+    width: 55px;
+    height: 55px;
+    border-radius: 10px;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    cursor: grab;
+    box-shadow: 2px 2px 6px rgba(0,0,0,.3);
   }
 
   button {
     padding: 8px 16px;
     font-size: 18px;
-    background: #E64A19;
-    color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: 0.2s;
+    margin: 8px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,.25);
   }
-  button:hover { background: #32e625; }
+
+  button:hover { opacity: 0.85; }
 
   #message {
-    margin-top: 10px;
+    margin-top: 15px;
+    font-size: 20px;
     font-weight: bold;
-    font-size: 18px;
   }
 
   select {
-    margin-top: 10px;
+    padding: 6px 10px;
     font-size: 18px;
-    padding: 5px;
-    border-radius: 8px;
-    border: 2px solid #E64A19;
+    border-radius: 6px;
+    border: 2px solid;
+    margin: 10px;
   }
 
-  /* ---------------------------- */
-  /*        PAINEL DE REGRAS      */
-  /* ---------------------------- */
-  #rules-box {
-    width: 260px;
-    padding: 10px;
-    background: #fff;
+  .modal-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-box {
+    background: white;
+    padding: 25px;
+    width: 350px;
     border-radius: 12px;
-    box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
     text-align: left;
+    box-shadow: 0 0 10px rgba(0,0,0,.5);
     font-size: 18px;
-    display: none; /* começa escondido */
   }
 
+  .modal-box h2 {
+    margin-top: 0;
+    text-align: center;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); background-color: inherit; }
+    50% { transform: scale(1.2); background-color: #fffb7d; }
+    100% { transform: scale(1); background-color: inherit; }
+  }
+  .win-cell { animation: pulse 0.5s ease-in-out 3; }
+
+  .confetti {
+    position: fixed;
+    width: 10px; height: 10px;
+    top: -10px;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 50%;
+  }
 </style>
 </head>
+
 <body>
 
-<h1>GONDOL! GAME 🎲</h1>
+<h1>GONDOL – DRAG & DROP 🎲</h1>
+
+<select id="levelSelect" onchange="newGame()">
+  <option value="easy">Easy</option>
+  <option value="medium" selected>Medium</option>
+  <option value="hard">Hard</option>
+</select>
+
+<select id="themeSelect" onchange="applyTheme()">
+  <option value="Dark">Dark Mode</option>
+  <option value="Cyberpunk">Cyberpunk</option>
+  <option value="Pastel">Pastel</option>
+  <option value="Escolar">Escolar</option>
+  <option value="QuadroNegro">Quadro-negro (Giz)</option>
+  <option value="Minecraft">Minecraft</option>
+  <option value="Neon">Neon</option>
+  <option value="GameBoy">Game Boy Clássico</option>
+</select>
 
 <div class="info">
   <div>⏱️ Time: <span id="tempo">0:00</span></div>
-  <div>🏆 Best Time: <span id="recorde">--</span></div>
+  <div>🏆 Best: <span id="recorde">--</span></div>
 </div>
 
-<div>
-  <label for="difficulty">Difficulty: </label>
-  <select id="difficulty" onchange="newChallenge()">
-    <option value="easy">Easy</option>
-    <option value="medium">Medium</option>
-    <option value="hard">Hard</option>
-  </select>
-</div>
-
-<!-- ---------------------- -->
-<!--   MATRIZ + REGRAS      -->
-<!-- ---------------------- -->
 <div class="game-area">
-  
   <div class="container" id="container"></div>
+</div>
 
-  <div id="rules-box">
-    <h3>📘 Gondol Rules</h3>
-    <p>• Only numbers from 1 to 9, without repeating.</p>
-    <p>• The sum of the rows and columns results in the values ​​shown in bold.</p>
-    
+<div class="pieces-bottom">
+  <div class="pieces-box">
+    <div id="pieces"></div>
   </div>
-
 </div>
 
-<div class="palette" id="palette"></div>
-
-<div class="button-row">
-  <button onclick="checkSolution()">Check</button>
-  <button onclick="newChallenge()">New Challenge</button>
-  <button id="soundToggle">🔊 Sound On</button>
-  <button onclick="toggleRules()">📘 Rules</button>
-</div>
+<button onclick="checkSolution()">Check</button>
+<button onclick="newGame()">New Game</button>
+<button onclick="openRules()">Rules</button>
 
 <p id="message"></p>
 
+<div class="modal-bg" id="rulesModal">
+  <div class="modal-box">
+    <h2>Rules</h2>
+    <p>• Drag the numbers 1–9 into the 3×3 grid.</p>
+    <p>• The sum of each row must match the target on the sides.</p>
+    <p>• The sum of each column must match the targets at the top/bottom.</p>
+    <p>• Use all numbers exactly once.</p>
+    <p>• Press “Check” to verify your solution.</p>
+    <button onclick="closeRules()">Close</button>
+  </div>
+</div>
+
 <script>
-const container = document.getElementById('container');
-const palette = document.getElementById('palette');
-const message = document.getElementById('message');
-const tempoEl = document.getElementById('tempo');
-const recordEl = document.getElementById('recorde');
-const soundToggle = document.getElementById('soundToggle');
+let solution, board, rowTargets, colTargets;
+let timerInterval, seconds=0;
+let bestTime = null;
 
-let selectedNumber = null;
-let board = Array(3).fill().map(()=>Array(3).fill(null));
-let solution = Array(3).fill().map(()=>Array(3).fill(0));
-let rowTargets = [0,0,0];
-let colTargets = [0,0,0];
-let tempo = 0;
-let interval = null;
-let gameActive = false;
-let soundEnabled = true;
+const soundPick = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+const soundDrop = new Audio("https://actions.google.com/sounds/v1/cartoon/slide_whistle_to.ogg");
 
-let bestTime = localStorage.getItem("gondolBestTime")
-                ? parseInt(localStorage.getItem("gondolBestTime"))
-                : null;
+const themes = {
+  Dark: {bg1:"#1a1a1a", bg2:"#111111", text:"#ffffff", board:"#333333", cell:"#222222", cellBorder:"#555555", piece:"#444444", pieceBorder:"#ffffff", button:"#555555", buttonText:"#ffffff"},
+  Cyberpunk: {bg1:"#140021", bg2:"#000000", text:"#00f0ff", board:"#350045", cell:"#000000", cellBorder:"#ff00bf", piece:"#000000", pieceBorder:"#ff00bf", button:"#ff00bf", buttonText:"#000000"},
+  Pastel: {bg1:"#fbe7c6", bg2:"#fff0de", text:"#5c3c92", board:"#ffe4e1", cell:"#fffaf0", cellBorder:"#f5c7b8", piece:"#ffd1dc", pieceBorder:"#ff8fa3", button:"#ffb3c1", buttonText:"#5c3c92"},
+  Escolar: {bg1:"#f0f8ff", bg2:"#ffffff", text:"#003366", board:"#cce6ff", cell:"#ffffff", cellBorder:"#99ccff", piece:"#99ccff", pieceBorder:"#003366", button:"#3399ff", buttonText:"#ffffff"},
+  QuadroNegro: {bg1:"#1a1a1a", bg2:"#0f0f0f", text:"#ffffff", board:"#1f1f1f", cell:"#2b2b2b", cellBorder:"#ffffff", piece:"#333333", pieceBorder:"#ffffff", button:"#444444", buttonText:"#ffffff"},
+  Minecraft: {bg1:"#4caf50", bg2:"#2e7d32", text:"#ffffff", board:"#5d4037", cell:"#8d6e63", cellBorder:"#3e2723", piece:"#795548", pieceBorder:"#1b5e20", button:"#33691e", buttonText:"#ffffff"},
+  Neon: {bg1:"#000000", bg2:"#07001a", text:"#39ff14", board:"#111111", cell:"#000000", cellBorder:"#ff00ff", piece:"#0a0a0a", pieceBorder:"#39ff14", button:"#ff00ff", buttonText:"#000000"},
+  GameBoy: {bg1:"#c4cfa1", bg2:"#b2c39b", text:"#2c2c2c", board:"#8b9c6b", cell:"#c4d0a0", cellBorder:"#6b7b4d", piece:"#b7c48a", pieceBorder:"#2c2c2c", button:"#8b2e4f", buttonText:"#ffffff"}
+};
 
-function formatTime(t){
-  const min = Math.floor(t / 60);
-  const sec = (t % 60).toString().padStart(2, '0');
-  return `${min}:${sec}`;
-}
-
-if(bestTime !== null){
-  recordEl.textContent = formatTime(bestTime);
-}
-
-let ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playNote(freq, dur=0.2) {
-  if (!soundEnabled) return;
-  let o = ctx.createOscillator();
-  let g = ctx.createGain();
-  o.connect(g);
-  g.connect(ctx.destination);
-  o.type = "square";
-  o.frequency.value = freq;
-  g.gain.setValueAtTime(0.08, ctx.currentTime);
-  o.start();
-  o.stop(ctx.currentTime + dur);
-}
-
-function startTimer() {
-  if (interval) clearInterval(interval);
-  tempo = 0;
-  tempoEl.textContent = "0:00";
-  interval = setInterval(() => {
-    tempo++;
-    tempoEl.textContent = formatTime(tempo);
+/* Timer */
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    seconds++;
+    const m = Math.floor(seconds/60);
+    const s = seconds%60;
+    document.getElementById("tempo").textContent = `${m}:${s.toString().padStart(2,'0')}`;
   }, 1000);
 }
 
-function generateBoard() {
+/* Drag & Drop */
+function allowDrop(ev){ ev.preventDefault(); }
+function drag(ev){ ev.dataTransfer.setData("num", ev.target.id); soundPick.play(); }
+function drop(ev){
+  ev.preventDefault();
+  const id = ev.dataTransfer.getData("num");
+  const piece = document.getElementById(id);
+  const r = ev.target.dataset.r;
+  const c = ev.target.dataset.c;
+  if(board[r][c] !== null) return;
+  board[r][c] = parseInt(piece.textContent);
+  ev.target.textContent = piece.textContent;
+  piece.remove();
+  soundDrop.play();
+}
+
+/* Banco */
+function createPieceBank(usedNumbers){
+  const box = document.getElementById("pieces");
+  box.innerHTML = "";
+  for(let n=1; n<=9; n++){
+    if(usedNumbers.includes(n)) continue;
+    const p = document.createElement("div");
+    p.className = "piece";
+    p.id = "piece"+n;
+    p.textContent = n;
+    p.draggable = true;
+    p.ondragstart = drag;
+    box.appendChild(p);
+  }
+  applyTheme();
+}
+
+/* Permite remover peças do tabuleiro */
+function makeCellsRemovable() {
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach(cell => {
+    cell.ondblclick = () => {
+      const r = cell.dataset.r;
+      const c = cell.dataset.c;
+      if (board[r][c] !== null) {
+        const n = board[r][c];
+        const p = document.createElement('div');
+        p.className = 'piece';
+        p.id = 'piece' + n + '-' + Date.now();
+        p.textContent = n;
+        p.draggable = true;
+        p.ondragstart = drag;
+        document.getElementById('pieces').appendChild(p);
+
+        board[r][c] = null;
+        cell.textContent = '';
+        applyTheme();
+      }
+    }
+  });
+}
+
+/* Tabuleiro */
+function createBoard(){
+  const cont = document.getElementById("container");
+  cont.innerHTML = "";
+
+  cont.appendChild(document.createElement("div"));
+  colTargets.forEach(v=>{
+    let d=document.createElement("div");
+    d.className="header";
+    d.textContent=v;
+    cont.appendChild(d);
+  });
+  cont.appendChild(document.createElement("div"));
+
+  for(let r=0; r<3; r++){
+    let s=document.createElement("div");
+    s.className="side";
+    s.textContent=rowTargets[r];
+    cont.appendChild(s);
+
+    for(let c=0; c<3; c++){
+      let cell=document.createElement("div");
+      cell.className="cell";
+      cell.dataset.r=r;
+      cell.dataset.c=c;
+      cell.ondragover = allowDrop;
+      cell.ondrop = drop;
+      if(board[r][c] !== null) cell.textContent = board[r][c];
+      cont.appendChild(cell);
+    }
+
+    let s2=document.createElement("div");
+    s2.className="sideR";
+    s2.textContent=rowTargets[r];
+    cont.appendChild(s2);
+  }
+
+  cont.appendChild(document.createElement("div"));
+  colTargets.forEach(v=>{
+    let d=document.createElement("div");
+    d.className="footer";
+    d.textContent=v;
+    cont.appendChild(d);
+  });
+  cont.appendChild(document.createElement("div"));
+
+  applyTheme();
+  makeCellsRemovable();
+}
+
+/* Puzzle */
+function generatePuzzle(){
   const nums = [1,2,3,4,5,6,7,8,9].sort(()=>Math.random()-0.5);
-  solution = [nums.slice(0,3), nums.slice(3,6), nums.slice(6,9)];
+  solution = [ nums.slice(0,3), nums.slice(3,6), nums.slice(6,9) ];
   rowTargets = solution.map(r => r.reduce((a,b)=>a+b,0));
   colTargets = [0,1,2].map(c => solution[0][c]+solution[1][c]+solution[2][c]);
-
   board = Array(3).fill().map(()=>Array(3).fill(null));
 
-  const diff = document.getElementById('difficulty').value;
-  let revealCount = diff==='easy'?4:(diff==='medium'?2:0);
-  let revealed = [];
+  const level = document.getElementById("levelSelect").value;
+  const indices = [0,1,2,3,4,5,6,7,8].sort(()=>Math.random()-0.5);
+  let positions = [];
 
-  while (revealCount>0) {
-    let r = Math.floor(Math.random()*3);
-    let c = Math.floor(Math.random()*3);
-    if (!revealed.some(p=>p[0]===r && p[1]===c)) {
-      board[r][c] = solution[r][c];
-      revealed.push([r,c]);
-      revealCount--;
-    }
-  }
+  if(level==="easy") positions = indices.slice(0,4);
+  else if(level==="medium") positions = indices.slice(0,2);
+  else positions = [];
 
-  renderBoardWithEffect();
-  message.textContent = '';
-  startTimer();
-  gameActive = true;
-}
-
-function renderBoardWithEffect() {
-  container.innerHTML = '';
-  container.appendChild(document.createElement('div'));
-
-  colTargets.forEach((target, i) => {
-    const h = document.createElement('div');
-    h.className = 'header';
-    h.textContent = target;
-    container.appendChild(h);
-    setTimeout(() => { h.classList.add('show'); playNote(440 + i*60); }, 400 * i);
+  const flat = solution.flat();
+  const used = [];
+  positions.forEach(i=>{
+    board[Math.floor(i/3)][i%3] = flat[i];
+    used.push(flat[i]);
   });
 
-  rowTargets.forEach((target, r) => {
-    const s = document.createElement('div');
-    s.className = 'side';
-    s.textContent = target;
-    container.appendChild(s);
-    setTimeout(() => { s.classList.add('show'); playNote(600 - r*70); }, 400 * (r + 3));
-
-    for(let c=0;c<3;c++){
-      const cell=document.createElement('div');
-      cell.className='cell';
-      cell.textContent=board[r][c]??'';
-      cell.onclick=()=>{
-        if(board[r][c]===selectedNumber){board[r][c]=null;}
-        else if(selectedNumber!==null && !board.flat().includes(selectedNumber)){
-          board[r][c]=selectedNumber;
-        }
-        renderBoardWithEffect();
-      };
-      container.appendChild(cell);
-    }
-  });
+  createPieceBank(used);
 }
 
-function createPalette(){
-  palette.innerHTML='';
-  for(let i=1;i<=9;i++){
-    const n=document.createElement('div');
-    n.className='number';
-    n.textContent=i;
-    n.onclick=()=>{
-      selectedNumber=i;
-      document.querySelectorAll('.number').forEach(el=>el.style.background='#80ff00');
-      n.style.background='#32e625';
-      playNote(300+i*30);
-    };
-    palette.appendChild(n);
+/* Vitória */
+function playVictoryAnimation() {
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach(cell => cell.classList.add('win-cell'));
+
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * window.innerWidth + 'px';
+    confetti.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+    document.body.appendChild(confetti);
+
+    const fall = 2000 + Math.random()*2000;
+    confetti.animate([
+      { transform: `translateY(0px)` },
+      { transform: `translateY(${window.innerHeight}px)` }
+    ], { duration: fall, easing: 'linear' });
+
+    setTimeout(()=>confetti.remove(), fall);
   }
+
+  new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 }
 
+/* Verificar */
 function checkSolution(){
-  let correct=true;
-  for(let r=0;r<3;r++){
-    if(board[r].reduce((a,b)=>a+(b||0),0)!==rowTargets[r]) correct=false;
-  }
-  for(let c=0;c<3;c++){
-    if((board[0][c]||0)+(board[1][c]||0)+(board[2][c]||0)!==colTargets[c]) correct=false;
-  }
-  if(correct){
-    clearInterval(interval);
+  let ok = true;
+  for(let r=0; r<3; r++)
+    if(board[r].reduce((a,b)=>a+(b||0),0) !== rowTargets[r]) ok=false;
+  for(let c=0; c<3; c++)
+    if(board[0][c] + board[1][c] + board[2][c] !== colTargets[c]) ok=false;
 
-    if(bestTime === null || tempo < bestTime){
-        bestTime = tempo;
-        localStorage.setItem("gondolBestTime", bestTime);
-        recordEl.textContent = formatTime(bestTime);
-        message.textContent = "🏆 NEW RECORD! Great job!";
-    } else {
-        message.textContent = "✅ Correct! Congratulations!";
+  if(ok){
+    clearInterval(timerInterval);
+    playVictoryAnimation();
+    if(bestTime===null || seconds<bestTime){
+      bestTime = seconds;
+      document.getElementById("recorde").textContent = `${Math.floor(bestTime/60)}:${(bestTime%60).toString().padStart(2,'0')}`;
     }
-
-    playNote(880,0.3);
-  } else {
-    message.textContent="❌ Not yet. Try again!";
-    playNote(220,0.2);
   }
+  document.getElementById("message").textContent =
+    ok ? "🎉 Correct!" : "❌ Not yet!";
 }
 
-soundToggle.onclick = () => {
-  soundEnabled = !soundEnabled;
-  soundToggle.textContent = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
-};
+/* Novo jogo */
+function newGame(){
+  clearInterval(timerInterval);
+  seconds=0;
+  document.getElementById("tempo").textContent="0:00";
+  document.getElementById("message").textContent="";
 
-function newChallenge(){
-  generateBoard();
+  generatePuzzle();
+  createBoard();
+  applyTheme();
+  startTimer();
 }
 
-function toggleRules(){
-  const box = document.getElementById("rules-box");
-  box.style.display = (box.style.display === "none") ? "block" : "none";
+/* Regras modal */
+function openRules(){ document.getElementById("rulesModal").style.display="flex"; }
+function closeRules(){ document.getElementById("rulesModal").style.display="none"; }
+
+/* Aplicar tema */
+function applyTheme(){
+  const themeName = document.getElementById('themeSelect').value;
+  const theme = themes[themeName];
+
+  document.body.style.background = `linear-gradient(${theme.bg1}, ${theme.bg2})`;
+  document.body.style.color = theme.text;
+
+  const container = document.getElementById('container');
+  container.style.background = theme.board;
+
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach(c => {
+    c.style.backgroundColor = theme.cell;
+    c.style.borderColor = theme.cellBorder;
+    c.style.color = theme.text;
+  });
+
+  const pieces = document.querySelectorAll('.piece');
+  pieces.forEach(p => {
+    p.style.backgroundColor = theme.piece;
+    p.style.borderColor = theme.pieceBorder;
+    p.style.color = theme.text;
+  });
+
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(b => {
+    b.style.backgroundColor = theme.button;
+    b.style.color = theme.buttonText;
+  });
 }
 
-createPalette();
-newChallenge();
+/* Inicialização */
+newGame();
 </script>
 </body>
 </html>
